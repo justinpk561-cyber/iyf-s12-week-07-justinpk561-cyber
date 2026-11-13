@@ -1,37 +1,56 @@
+
 import { state } from "./state.js";
 import { filterTodos, countActiveTodos } from "./todo-logic.js";
 
 export function render() {
     const todoList = document.getElementById("todo-list");
-    const remainingCount = document.getElementById("remaining-count");
+    const taskCount = document.getElementById("task-count");
+    const filterButtons = document.querySelectorAll("[data-filter]");
 
     if (!todoList) return;
 
     const visibleTodos = filterTodos(state.todos, state.filter);
 
-    todoList.innerHTML = "";
+    todoList.textContent = "";
 
     visibleTodos.forEach(todo => {
         const li = document.createElement("li");
-
-        li.innerHTML = `
-            <span>${todo.text}</span>
-            <button data-action="toggle" data-id="${todo.id}">
-                ${todo.completed ? "Undo" : "Complete"}
-            </button>
-            <button data-action="delete" data-id="${todo.id}">
-                Delete
-            </button>
-        `;
+        li.className = "todo-item";
 
         if (todo.completed) {
-            li.style.textDecoration = "line-through";
+            li.classList.add("completed");
         }
 
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = todo.completed;
+        checkbox.dataset.action = "toggle";
+        checkbox.dataset.id = todo.id;
+        checkbox.setAttribute("aria-label", "Mark task as complete");
+
+        const span = document.createElement("span");
+        span.className = "task-text";
+        span.textContent = todo.text;
+
+        const deleteButton = document.createElement("button");
+        deleteButton.textContent = "Delete";
+        deleteButton.className = "delete-btn";
+        deleteButton.dataset.action = "delete";
+        deleteButton.dataset.id = todo.id;
+
+        li.append(checkbox, span, deleteButton);
         todoList.appendChild(li);
     });
 
-    if (remainingCount) {
-        remainingCount.textContent = countActiveTodos(state.todos);
+    if (taskCount) {
+        const remaining = countActiveTodos(state.todos);
+        taskCount.textContent = `${remaining} tasks remaining`;
     }
-              }
+
+    filterButtons.forEach(button => {
+        button.classList.toggle(
+            "active",
+            button.dataset.filter === state.filter
+        );
+    });
+}
