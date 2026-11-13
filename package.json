@@ -1,0 +1,11 @@
+{
+  "name": "iyf-s12-week-07-justinpk561-cyber",
+  "version": "1.0.0",
+  "description": "Week 7 JavaScript Best Practices",
+  "type": "module",
+  "scripts": {
+    "test": "vitest",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  }
+}
