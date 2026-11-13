@@ -1,3 +1,4 @@
+
 // Add a new todo
 export function addTodo(todos, text) {
     const newTodo = {
@@ -22,6 +23,11 @@ export function toggleTodo(todos, id) {
 // Delete a todo
 export function deleteTodo(todos, id) {
     return todos.filter(todo => todo.id !== id);
+}
+
+// Clear completed todos
+export function clearCompleted(todos) {
+    return todos.filter(todo => !todo.completed);
 }
 
 // Filter todos
