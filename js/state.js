@@ -37,3 +37,7 @@ export function setFilter(filter) {
     state.filter = filter;
     commit();
 }
+export function clearCompletedTodos() {
+    state.todos = clearCompletedLogic(state.todos);
+    commit();
+}
