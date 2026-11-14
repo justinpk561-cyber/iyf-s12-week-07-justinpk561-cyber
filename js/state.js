@@ -1,16 +1,23 @@
 import { getFromStorage, saveToStorage } from "./storage.js";
+
 import {
     addTodo as addTodoLogic,
     toggleTodo as toggleTodoLogic,
-    deleteTodo as deleteTodoLogic
+    deleteTodo as deleteTodoLogic,
+    clearCompleted as clearCompletedLogic
 } from "./todo-logic.js";
 
 const STORAGE_KEY = "todos";
 const FILTER_KEY = "filter";
 
+const savedTodos = getFromStorage(STORAGE_KEY, []);
+const savedFilter = getFromStorage(FILTER_KEY, "all");
+
 export const state = {
-    todos: getFromStorage(STORAGE_KEY, []),
-    filter: getFromStorage(FILTER_KEY, "all")
+    todos: Array.isArray(savedTodos) ? savedTodos : [],
+    filter: ["all", "active", "completed"].includes(savedFilter)
+        ? savedFilter
+        : "all"
 };
 
 export function commit() {
@@ -34,9 +41,12 @@ export function deleteTodo(id) {
 }
 
 export function setFilter(filter) {
+    if (!["all", "active", "completed"].includes(filter)) return;
+
     state.filter = filter;
     commit();
 }
+
 export function clearCompletedTodos() {
     state.todos = clearCompletedLogic(state.todos);
     commit();
