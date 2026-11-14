@@ -1,74 +1,53 @@
-const STORAGE_KEY = "shopping-cart";
+import { getFromStorage, saveToStorage } from "./storage.js";
+
+import {
+    addTodo as addTodoLogic,
+    toggleTodo as toggleTodoLogic,
+    deleteTodo as deleteTodoLogic,
+    clearCompleted as clearCompletedLogic
+} from "./todo-logic.js";
+
+const STORAGE_KEY = "todos";
+const FILTER_KEY = "filter";
+
+const savedTodos = getFromStorage(STORAGE_KEY, []);
+const savedFilter = getFromStorage(FILTER_KEY, "all");
 
 export const state = {
-    cart: JSON.parse(localStorage.getItem(STORAGE_KEY)) || []
+    todos: Array.isArray(savedTodos) ? savedTodos : [],
+    filter: ["all", "active", "completed"].includes(savedFilter)
+        ? savedFilter
+        : "all"
 };
 
-export function saveCart() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cart));
+export function commit() {
+    saveToStorage(STORAGE_KEY, state.todos);
+    saveToStorage(FILTER_KEY, state.filter);
 }
 
-export function addToCart(product) {
-    const existingItem = state.cart.find(item => item.id === product.id);
-
-    if (existingItem) {
-        existingItem.quantity++;
-    } else {
-        state.cart.push({ ...product, quantity: 1 });
-    }
-
-    saveCart();
+export function addTodo(text) {
+    state.todos = addTodoLogic(state.todos, text);
+    commit();
 }
 
-export function removeFromCart(productId) {
-    state.cart = state.cart.filter(item => item.id !== productId);
-    saveCart();
+export function toggleTodo(id) {
+    state.todos = toggleTodoLogic(state.todos, id);
+    commit();
 }
 
-export function getCartCount() {
-    return state.cart.reduce((total, item) => total + item.quantity, 0);
+export function deleteTodo(id) {
+    state.todos = deleteTodoLogic(state.todos, id);
+    commit();
 }
 
-export function getCartTotal() {
-    return state.cart.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-    );
-}
-const STORAGE_KEY = "shopping-cart";
+export function setFilter(filter) {
+    if (!["all", "active", "completed"].includes(filter)) return;
 
-export const state = {
-    cart: JSON.parse(localStorage.getItem(STORAGE_KEY)) || []
-};
-
-export function saveCart() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cart));
+    state.filter = filter;
+    commit();
 }
 
-export function addToCart(product) {
-    const existingItem = state.cart.find(item => item.id === product.id);
-
-    if (existingItem) {
-        existingItem.quantity++;
-    } else {
-        state.cart.push({ ...product, quantity: 1 });
-    }
-
-    saveCart();
-}
-
-export function removeFromCart(productId) {
-    state.cart = state.cart.filter(item => item.id !== productId);
-    saveCart();
-}
-
-export function getCartCount() {
-    return state.cart.reduce((total, item) => total + item.quantity, 0);
-}
-
-export function getCartTotal() {
-    return state.cart.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0
-    );
+export function clearCompletedTodos() {
+    state.todos = clearCompletedLogic(state.todos);
+    commit();
 }
